@@ -352,20 +352,20 @@ for d in $dirs; do
     fi
 
     if cat /etc/os-release | grep -q -i ubuntu; then
-        rename "s/accelerator/$LOWER/g" *
-	rename "s/acc_full/$LOWERFULL/g" *
-        rename "s/accelerator/$LOWER/g" */*
-	rename "s/acc_full/$LOWERFULL/g" */*
+        rename "s/accelerator/$LOWER/g" * || true
+	rename "s/acc_full/$LOWERFULL/g" * || true
+        rename "s/accelerator/$LOWER/g" */* || true
+	rename "s/acc_full/$LOWERFULL/g" */* || true
     elif cat /etc/os-release | grep -q -i centos; then
-        rename accelerator $LOWER *
-	rename acc_full $LOWERFULL *
-        rename accelerator $LOWER */*
-	rename acc_full $LOWERFULL */*
+        rename accelerator $LOWER * || true
+	rename acc_full $LOWERFULL * || true
+        rename accelerator $LOWER */* || true
+	rename acc_full $LOWERFULL */* || true
     elif cat /etc/os-release | grep -q -i rhel; then
-        rename accelerator $LOWER *
-	rename acc_full $LOWERFULL *
-        rename accelerator $LOWER */*
-	rename acc_full $LOWERFULL */*
+        rename accelerator $LOWER * || true
+	rename acc_full $LOWERFULL * || true
+        rename accelerator $LOWER */* || true
+	rename acc_full $LOWERFULL */* || true
     fi
     
     if [[ "$FLOW" == "rtl" && "$d" != "hls" ]]; then
@@ -737,14 +737,14 @@ for d in $dirs; do
     cp $TEMPLATES_DIR/$d/* .
 
     if cat /etc/os-release | grep -q -i ubuntu; then
-        rename "s/accelerator/$LOWER/g" *
-	rename "s/acc_full/$LOWERFULL/g" *
+        rename "s/accelerator/$LOWER/g" * || true
+	rename "s/acc_full/$LOWERFULL/g" * || true
     elif cat /etc/os-release | grep -q -i centos; then
-	rename accelerator $LOWER *
-	rename acc_full $LOWERFULL *
+	rename accelerator $LOWER * || true
+	rename acc_full $LOWERFULL * || true
     elif cat /etc/os-release | grep -q -i rhel; then
-	rename accelerator $LOWER *
-	rename acc_full $LOWERFULL *
+	rename accelerator $LOWER * || true
+	rename acc_full $LOWERFULL * || true
     fi
 
     sed -i "s/accelerator_name/$LOWER/g" *
