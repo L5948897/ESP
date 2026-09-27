@@ -288,32 +288,54 @@ void mac::compute_kernel()
 
     // Compute
     bool ping = true;
+    bool out_ping = true;
     {
-        for (uint16_t b = 0; b < mac_n; b++) {
-            uint32_t in_length  = mac_len * mac_vec;
+        for (uint16_t b = 0; b < mac_n; b++)
+        {
+            uint32_t in_length = mac_len * mac_vec;
             uint32_t out_length = mac_vec;
-            int out_rem         = out_length;
 
-            for (int in_rem = in_length; in_rem > 0; in_rem -= PLM_IN_WORD) {
+            uint32_t vector_index = 0;
+            uint32_t vector_number = 0;
+            int32_t acc = 0;
 
-                uint32_t in_len  = in_rem > PLM_IN_WORD ? PLM_IN_WORD : in_rem;
-                uint32_t out_len = out_rem > PLM_OUT_WORD ? PLM_OUT_WORD : out_rem;
+            for (int in_rem = in_length; in_rem > 0; in_rem -= PLM_IN_WORD)
+            {
+
+                uint32_t in_len  = in_rem  > PLM_IN_WORD  ? PLM_IN_WORD  : in_rem;
 
                 this->compute_load_handshake();
 
                 // Computing phase implementation
-                for (int i = 0; i < in_len; i++) {
-                    if (ping) plm_out_ping[i] = plm_in_ping[i];
+                for (int i = 0; i < in_len; i += 2) {
+
+                    // Multiply and accumulate
+                    if (ping)
+                        acc += plm_in_ping[i] * plm_in_ping[i + 1];
                     else
-                        plm_out_pong[i] = plm_in_pong[i];
+                        acc += plm_in_pong[i] * plm_in_pong[i + 1];
+
+                    vector_index += 2;
+
+                    // Write accumulated result
+                    if (vector_index == mac_len) {
+                        if (out_ping)
+                            plm_out_ping[vector_number] = acc;
+                        else
+                            plm_out_pong[vector_number] = acc;
+
+                        acc = 0;
+                        vector_index = 0;
+                        vector_number++;
+                    }
                 }
 
-                out_rem -= PLM_OUT_WORD;
-                this->compute_store_handshake();
                 ping = !ping;
             }
-        }
 
+            this->compute_store_handshake();
+            out_ping = !out_ping;
+        }
         // Conclude
         {
             this->process_done();

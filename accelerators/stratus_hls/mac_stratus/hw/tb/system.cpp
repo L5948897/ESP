@@ -95,16 +95,20 @@ void system_t::load_memory()
     out_size = out_words_adj * (mac_n);
 
     // Initialize input
-    in = new int 32 _t[in_size];
+    in = new int32_t[in_size];
     for (int i = 0; i < mac_n; i++)
         for (int j = 0; j < mac_len * mac_vec; j++)
-            in[i * in_words_adj + j] = (int 32 _t)j;
+            in[i * in_words_adj + j] = j % mac_vec;
 
     // Compute golden output
-    gold = new int 32 _t[out_size];
+    gold = new int32_t[out_size];
     for (int i = 0; i < mac_n; i++)
-        for (int j = 0; j < mac_vec; j++)
-            gold[i * out_words_adj + j] = (int 32 _t)j;
+        for (int j = 0; j < mac_vec; j++) {
+            gold[i * out_words_adj + j] = 0;
+            for (int k = 0; k < mac_len; k += 2)
+                gold[i * out_words_adj + j] +=
+                    in[i * in_words_adj + j * mac_len + k] * in[i * in_words_adj + j * mac_len + k + 1];
+        }
 
             // Memory initialization:
 #if (DMA_WORD_PER_BEAT == 0)
